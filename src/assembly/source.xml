@@ -42,5 +42,12 @@
             </includes>
             <outputDirectory>.</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.packageDirectory}</directory>
+            <includes>
+                <include>${project.build.finalName}.jar</include>
+            </includes>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>
