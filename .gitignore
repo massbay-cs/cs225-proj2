@@ -1,9 +1,50 @@
+##
+# Maven/Java
+##
+
+*.class
+*.jar
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
+jar/
+package/
+
+# JVM crash logs
+hs_err_pid*
+
+##
+# IntelliJ IDEA
+##
+
+*.idea
+*.iml
+
+##
+# Dia
+##
+
+*.autosave
+
+##
+# Platform-specific
+##
+
+# Linux
+*~
+*.swp
+*.tmp
+*.bak
+*.old
+*.un~
+.directory
+
+# Mac
+._*
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
