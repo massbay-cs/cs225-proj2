@@ -21,8 +21,14 @@ public class Game extends Application {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25,25,25,25));
-        for (int i = 0)
-        grid.add()
+        String gridBName = "";
+        for (int i = 0; i<10; i++) {
+            for (int j = 0; j<10; j++) {
+                gridBName = "Button" + i + j;
+                Button  = new Button(gridBName);
+                grid.add();
+            }
+        }
 
         Button StartOver = new Button("Start Over");
         Button Hint = new Button("Hint");
