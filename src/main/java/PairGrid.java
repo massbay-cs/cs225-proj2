@@ -1,18 +1,20 @@
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.List;
 
 public final class PairGrid {
+    private static final Paint BORDER_COLOR = Color.BLACK;
+
     private final Property topProperty;
     private final Property leftProperty;
     private final int size;
@@ -20,7 +22,7 @@ public final class PairGrid {
     private final GridPane pane;
     private final double pixels;
 
-    public PairGrid(double pixels, Property topProperty, Property leftProperty, List<Permutation> answers) {
+    public PairGrid(double pixels, double border, Property topProperty, Property leftProperty, List<Permutation> answers) {
         this.pixels = pixels;
         this.size = topProperty.getValues().size();
         this.topProperty = topProperty;
@@ -28,8 +30,25 @@ public final class PairGrid {
         this.cells = new GridCell[size][size];
         this.pane = new GridPane();
 
+        pane.setBorder(new Border(new BorderStroke(BORDER_COLOR, BorderStrokeStyle.SOLID, null, new BorderWidths(border))));
+        pane.setBackground(new Background(new BackgroundFill(BORDER_COLOR, null, null)));
+        pane.setHgap(1);
+        pane.setVgap(1);
+
+        double totalPixels = (pixels + 1) * size  - 1 + border * 2;
+        pane.setPrefWidth(totalPixels);
+        pane.setPrefHeight(totalPixels);
+        pane.setMaxWidth(totalPixels);
+        pane.setMaxHeight(totalPixels);
+        pane.setMinWidth(totalPixels);
+        pane.setMinHeight(totalPixels);
+
         for (int top = 0; top < size; top++) {
+            pane.getColumnConstraints().add(new ColumnConstraints(pixels, pixels, pixels, Priority.NEVER, HPos.CENTER, false));
+
             for (int left = 0; left < size; left++) {
+                pane.getRowConstraints().add(new RowConstraints(pixels, pixels, pixels, Priority.NEVER, VPos.CENTER, false));
+
                 cells[top][left] = new GridCell(top, left);
             }
         }
@@ -67,16 +86,31 @@ public final class PairGrid {
         return true;
     }
 
-    public void clean() {
+    public int clean() {
+        int mistakes = 0;
+
         for (GridCell[] row : cells) {
             for (GridCell cell : row) {
-                cell.clean();
+                mistakes += cell.clean();
             }
         }
+
+        return mistakes;
     }
 
     public GridPane getPane() {
         return pane;
+    }
+
+    public void hint() {
+        for (GridCell[] row : cells) {
+            for (GridCell cell : row) {
+                if (cell.isAnswer() && !cell.isCorrect()) {
+                    cell.hint();
+                    return;
+                }
+            }
+        }
     }
 
     public class GridCell implements EventHandler<ActionEvent> {
@@ -97,6 +131,13 @@ public final class PairGrid {
             button.prefHeightProperty().bindBidirectional(button.prefWidthProperty());
             button.setPrefWidth(pixels);
             button.setOnAction(this);
+            button.setCursor(Cursor.HAND);
+
+            button.setTooltip(new Tooltip(String.format(
+                    "%s = %s",
+                    getTopProperty().getValue(top).getValue(),
+                    getLeftProperty().getValue(left).getValue()
+            )));
 
             setCurrentState(State.UNKNOWN, true);
         }
@@ -124,15 +165,19 @@ public final class PairGrid {
             }
         }
 
-        public void clean() {
-            if (isCorrect()) {
-                return;
+        public int clean() {
+            int mistakes = 0;
+
+            if (isCorrect() || currentState == State.UNKNOWN) {
+                return mistakes;
             }
 
-            implicitlyIncorrectCount = 0;
-            currentState = State.UNKNOWN;
-            explicitState = State.UNKNOWN;
-            update();
+            if (currentState != State.IMPLICITLY_INCORRECT) {
+                mistakes = 1;
+            }
+
+            setCurrentState(State.UNKNOWN, true);
+            return mistakes;
         }
 
         public State getCurrentState() {
@@ -187,7 +232,10 @@ public final class PairGrid {
                 }
             }
 
-            explicitState = value;
+            if (explicit) {
+                explicitState = value;
+            }
+
             if (explicit && value == State.UNKNOWN && implicitlyIncorrectCount > 0) {
                 currentState = State.IMPLICITLY_INCORRECT;
             } else {
@@ -215,7 +263,7 @@ public final class PairGrid {
                     break;
 
                 case IMPLICITLY_INCORRECT:
-                    bg = new Color(.8, .3, .3, 1);
+                    bg = new Color(1, .5, .5, 1);
                     fg = Color.YELLOW;
                     text = "X";
                     break;
@@ -243,6 +291,10 @@ public final class PairGrid {
         @Override
         public void handle(ActionEvent event) {
             setCurrentState(getCurrentState().next(), true);
+        }
+
+        public void hint() {
+            setCurrentState(isAnswer() ? State.CORRECT : State.INCORRECT, true);
         }
     }
 }

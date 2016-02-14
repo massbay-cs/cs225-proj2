@@ -17,8 +17,4 @@ public final class Permutation {
     public PropertyValue get(Property property) {
         return values.get(property);
     }
-
-    public PropertyValue get(String property) {
-        return values.get(Property.placeholder(property));
-    }
 }
