@@ -1,12 +1,17 @@
-import javafx.scene.layout.GridPane;
+import javafx.scene.Group;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public final class MasterGrid {
     public static final double PIXELS = 30;
+    public static final double LABEL_PIXELS = 100;
 
     private final GridPane pane = new GridPane();
     private final List<PairGrid> subgrids = new LinkedList<>();
@@ -32,9 +37,13 @@ public final class MasterGrid {
 
                 if (top == 0) {
                     GridPane labels = new GridPane();
+                    labels.setMinWidth(LABEL_PIXELS);
                     pane.add(labels, 0, row);
                     for (PropertyValue value : topProperty.getValues()) {
                         Text text = new Text(value.getValue());
+                        text.prefHeight(PIXELS);
+                        text.minHeight(PIXELS);
+                        labels.getRowConstraints().add(new RowConstraints(PIXELS, PIXELS, PIXELS));
                         labels.add(text, 0, value.getValueId());
                     }
                 }
@@ -42,12 +51,18 @@ public final class MasterGrid {
 
             {
                 GridPane labels = new GridPane();
+                labels.setMinHeight(LABEL_PIXELS);
                 pane.add(labels, column, 0);
                 for (PropertyValue value : topProperty.getValues()) {
                     Text text = new Text(value.getValue());
-                    text.getTransforms().add(Transform.rotate(-90, 0, 0));
-                    labels.add(text, value.getValueId(), 0);
+                    text.prefHeight(PIXELS);
+                    text.minHeight(PIXELS);
+                    labels.getRowConstraints().add(new RowConstraints(PIXELS, PIXELS, PIXELS));
+                    labels.add(text, 0, value.getValueId());
                 }
+                labels.prefWidthProperty().bind(labels.heightProperty());
+                double pivot = PIXELS * topProperty.getValues().size() / 2;
+                labels.getTransforms().add(new Rotate(-90, pivot, pivot));
             }
         }
     }

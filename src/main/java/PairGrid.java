@@ -1,10 +1,12 @@
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
@@ -221,7 +223,7 @@ public final class PairGrid {
                 case UNKNOWN:
                     bg = new Color(1, 1, 1, 1);
                     fg = Color.GRAY;
-                    text = "";
+                    text = "?";
                     break;
 
                 default:
@@ -232,6 +234,8 @@ public final class PairGrid {
             }
 
             button.setBackground(new Background(new BackgroundFill(bg, null, null)));
+            button.setBorder(Border.EMPTY);
+            button.setPadding(Insets.EMPTY);
             button.setTextFill(fg);
             button.setText(text);
         }
